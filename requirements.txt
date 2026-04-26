@@ -1,0 +1,11 @@
+numpy==1.26.4
+pandas
+h5py
+openpyxl
+streamlit
+reportlab
+opencv-python-headless
+joblib
+scikit-learn
+matplotlib
+Pillow
