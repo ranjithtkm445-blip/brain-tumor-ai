@@ -1,101 +1,190 @@
-Brain Tumor AI — MRI-Based Tumor Segmentation, Radiomics Extraction and Survival Risk Prediction
-End-to-end brain tumor analysis pipeline using BraTS 2020 MRI data. Performs tumor segmentation (2D U-Net), extracts 30 radiomics features, predicts 5 omics biomarkers (Random Forest, R2=0.91), and estimates survival risk (FusionNet, 93.5% accuracy) with GradCAM explainability and PDF reporting.
-🔗 Live Demo → https://ranjith445-brain-tumor-ai.hf.space/
+Here is your **layman-friendly README** for the brain tumor project—simple, clear, and easy to understand.
 
-What does this project do?
-When you upload a brain MRI scan, this system:
+---
 
-Finds the tumor — draws boundaries around necrosis, edema and enhancing tumor
-Measures it — extracts 30 clinical measurements (size, shape, intensity)
-Predicts biomarkers — estimates gene expression and mutation scores from imaging
-Assesses risk — predicts whether the patient is HIGH or LOW survival risk
-Explains itself — shows a GradCAM heatmap of what the model focused on
-Reports it — generates a downloadable PDF clinical report
+# Brain Tumor Analysis using AI
 
+**Live Demo:** [https://ranjith445-brain-tumor-ai.hf.space/](https://ranjith445-brain-tumor-ai.hf.space/) 
 
-How it works
-Brain MRI scan (.h5)
-        ↓
-U-Net → finds tumor regions
-        ↓
-Radiomics → measures tumor (area, intensity, heterogeneity)
-        ↓
-Random Forest → predicts gene expression and mutation scores
-        ↓
-FusionNet → predicts aggressiveness and survival risk
-        ↓
-Streamlit App → visualize everything + download PDF
+---
 
-Dataset
+## What is this project about?
 
-BraTS 2020 — Brain Tumor Segmentation Challenge
-Each MRI slice has 4 modalities: T1, T1ce, T2, FLAIR
-Each slice has 3 tumor region masks: Necrosis, Edema, Enhancing tumor
-Training — 10 patients (volume_0 to volume_9), 572 valid slices
-Inference — 5 unseen patients (volume_10 to volume_14)
+Doctors use MRI scans to detect brain tumors.
+But analyzing these scans:
 
+* Takes time
+* Requires expert knowledge
+* Involves multiple steps
 
-Models
-ModelWhat it doesPerformance🔵 2D U-NetSegments tumor regions from MRIVal Loss: 0.2523🟢 Random ForestPredicts 5 omics biomarkers from radiomicsR2 Score: 0.91🟠 FusionNetPredicts survival risk from 35 featuresAccuracy: 93.5%
+This project builds an **AI system that can analyze brain MRI scans automatically** and provide useful insights.
 
-App Features
-FeatureDescription🖼️ MRI ViewerShows T1, T1ce, T2, FLAIR side by side🎯 SegmentationGround truth vs predicted tumor overlay🔍 Tumor HighlightZoomed in, color-coded tumor region🔥 GradCAMHeatmap showing what the model focused on📊 Radiomics TableAll 30 features in 3 tabs (Necrosis, Edema, Enhancing)🧬 Omics Prediction5 biomarkers predicted by Random Forest📈 Confidence ScoresSegmentation, omics and risk confidence📄 PDF ReportFull clinical report downloadable
+---
 
-Pipeline Steps
-Step 1 — Data Loading (step1_dataset.py)
-Loads .h5 MRI slices and links each one to its row in the Excel sheet by filename. Returns image, mask, radiomics, omics and survival label together.
-Step 2 — U-Net Model (step2_model.py)
-Lightweight 2D U-Net with encoder-decoder architecture and skip connections. Takes 4-channel MRI as input and outputs 3-channel tumor mask.
-Step 3 — Segmentation Training (step3_train.py)
-Trains U-Net using Dice Loss on 457 training slices for 10 epochs. Saves best model based on validation loss.
-Step 4 — Omics Predictor (step4_omics.py)
-Trains a Multi-Output Random Forest on 1,550 Excel rows to predict 5 omics values from 30 radiomics features. Achieves overall R2 of 0.91.
-Step 5 — Fusion Model (step5_fusion.py)
-Trains a two-headed FusionNet on 35 combined features to predict aggressiveness score and survival risk simultaneously. Achieves 93.5% validation accuracy.
-Step 6 — Inference (step6_predict.py)
-Full end-to-end inference combining all three models. Given a new MRI slice — predicts mask, computes radiomics, predicts omics, predicts risk and prints a clinical report.
+## What does this system do?
 
-Project Structure
-brain_tumor_ai/
-├── app.py                      ← Streamlit web app
-├── Dockerfile                  ← Docker config for deployment
-├── requirements.txt            ← Python dependencies
-├── mri_omics_dataset.xlsx      ← Radiomics + omics dataset (1,550 rows)
-├── src/
-│   ├── step1_dataset.py        ← Data loader + Excel linker
-│   ├── step2_model.py          ← 2D U-Net architecture
-│   ├── step3_train.py          ← U-Net training loop
-│   ├── step4_omics.py          ← Random Forest omics predictor
-│   ├── step5_fusion.py         ← FusionNet training
-│   └── step6_predict.py        ← Full inference pipeline
-├── models/
-│   ├── best_model.pth          ← Trained U-Net weights
-│   ├── fusion_model.pth        ← Trained FusionNet weights
-│   ├── omics_predictor.pkl     ← Trained Random Forest
-│   └── omics_scaler.pkl        ← Feature scaler
-├── data/                       ← BraTS 2020 .h5 slice files
-└── outputs/                    ← Generated PDF reports
+When you upload a brain MRI scan, the system:
 
-Technologies Used
-CategoryToolsDeep LearningPyTorch, 2D U-NetMachine LearningScikit-learn, Random ForestMedical ImagingH5py, NumPy, OpenCVExplainabilityGradCAMWeb AppStreamlitReportingReportLabDeploymentDocker, Hugging Face Spaces, Git LFSDataPandas, OpenPyXL
+* Finds the tumor in the image
+* Measures its size and structure
+* Predicts important biological information
+* Estimates patient risk level (high or low)
+* Shows what the AI focused on
+* Generates a full report
 
-Results Summary
-U-Net Segmentation    → Val Loss: 0.2523  (trained on 10 patients, 10 epochs)
-Random Forest Omics   → R2 Score: 0.9063  (trained on 1,550 Excel rows)
-FusionNet Risk        → Accuracy: 93.5%   (trained on 1,550 Excel rows)
+---
 
-Limitations
+## How does it work (simple explanation)
 
-Trained on only 10 patients — a production model would require 300+
-Omics data is synthetically generated with realistic correlations
-CPU-only inference — GPU would significantly improve speed
-Not validated for clinical use
+The system works step by step:
 
+### 1. Looks at the MRI scan
 
-Disclaimer
-This project is built for research and portfolio demonstration purposes only. It is not validated for clinical use and should not be used for medical diagnosis.
+MRI images show different views of the brain.
 
-Author
-Built by Ranjith Kumar as a portfolio demonstration of end-to-end biomedical AI development.
-🔗 Hugging Face: https://huggingface.co/Ranjith445
-🔗 Live Demo: https://ranjith445-brain-tumor-ai.hf.space/
+---
+
+### 2. Finds the tumor
+
+The AI identifies:
+
+* Tumor core
+* Swelling around it
+* Active tumor region
+
+It draws boundaries around these areas.
+
+---
+
+### 3. Measures the tumor
+
+The system calculates details like:
+
+* Size
+* Shape
+* Intensity
+
+These are called **features**.
+
+---
+
+### 4. Predicts biological signals
+
+Using these features, the AI estimates:
+
+* Gene activity
+* Mutation-related information
+
+---
+
+### 5. Predicts risk level
+
+Based on all information, it predicts:
+
+* Low risk
+* High risk
+
+---
+
+### 6. Explains its decision
+
+The system shows a heatmap highlighting:
+
+* Which part of the image influenced the decision
+
+---
+
+### 7. Generates a report
+
+A downloadable PDF report is created with:
+
+* Tumor details
+* Predictions
+* Visualizations
+
+---
+
+## What data was used?
+
+* Dataset: BraTS 2020 (brain tumor MRI dataset)
+* Contains MRI scans with tumor labels
+
+For this project:
+
+* Trained on **10 patients**
+* Tested on unseen patients
+
+---
+
+## What models are used?
+
+The system uses three AI models:
+
+1. **U-Net**
+
+   * Finds tumor regions in the image
+
+2. **Random Forest**
+
+   * Predicts biological signals from measurements
+
+3. **Fusion Model (FusionNet)**
+
+   * Combines all information and predicts risk
+
+---
+
+## What results does it give?
+
+* Tumor detection (segmentation)
+* Biological predictions (omics)
+* Risk prediction accuracy: **93.5%**
+
+---
+
+## Features of the application
+
+* View MRI images (different types)
+* See tumor highlighted clearly
+* View measurements and predictions
+* See AI explanation (heatmap)
+* Download full PDF report
+
+---
+
+## Important Note
+
+* Trained on a **small dataset (10 patients)**
+* Uses **synthetic biological data**
+
+This project is built for learning and demonstration.
+
+---
+
+## Limitations
+
+* Not trained on large real-world data
+* Not tested in clinical settings
+* Needs more data for real use
+
+---
+
+## Disclaimer
+
+This project is for educational and research purposes only.
+It should not be used for medical diagnosis.
+
+---
+
+## One-Line Summary
+
+An AI system that analyzes brain MRI scans, detects tumors, predicts risk, and explains its decisions.
+
+---
+
+## Author
+
+Built by Ranjith Kumar as a biomedical AI portfolio project.
+
+---
+
